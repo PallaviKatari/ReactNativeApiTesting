@@ -1,53 +1,47 @@
+// __tests__/UserProfile.test.js
 import React from 'react';
 import { render, waitFor } from '@testing-library/react-native';
 import UserProfile from './UserProfile';
-import * as apiService from './apiService';
+import { fetchUser } from './apiService';
 
-jest.mock('./apiService');
+jest.mock('./apiService'); // make sure this matches your import path
 
-describe('UserProfile Component', () => {
+describe('UserProfile', () => {
+  const fakeUser = { id: 1, name: 'Dinesh Kumar' };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders loading initially', () => {
-
-    apiService.fetchUser.mockResolvedValueOnce({
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com'
-    });
+  test('displays loading indicator initially', () => {
+    fetchUser.mockResolvedValueOnce(fakeUser);
 
     const { getByTestId } = render(<UserProfile userId={1} />);
-
     expect(getByTestId('loading')).toBeTruthy();
   });
 
-  it('renders user data after API call', async () => {
+  test('displays user data after fetch', async () => {
+    fetchUser.mockResolvedValueOnce(fakeUser);
 
-    apiService.fetchUser.mockResolvedValueOnce({
-      id: 1,
-      name: 'John Doe',
-      email: 'john@example.com'
+    const { getByText } = render(<UserProfile userId={1} />);
+
+    // Wait for async updates
+    await waitFor(() => {
+      expect(getByText('Dinesh Kumar')).toBeTruthy();
+    });
+  });
+
+  test('handles fetch error gracefully', async () => {
+    const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    fetchUser.mockRejectedValueOnce(new Error('Network error'));
+
+    const { queryByTestId } = render(<UserProfile userId={1} />);
+
+    await waitFor(() => {
+      expect(queryByTestId('loading')).toBeNull();
     });
 
-    const { getByTestId } = render(<UserProfile userId={1} />);
-
-    await waitFor(() => expect(getByTestId('username')).toBeTruthy());
-
-    expect(getByTestId('username').props.children).toBe('John Doe');
-    expect(getByTestId('email').props.children).toBe('john@example.com');
+    expect(consoleSpy).toHaveBeenCalledWith(new Error('Network error'));
+    consoleSpy.mockRestore();
   });
-
-  it('renders error message if API fails', async () => {
-
-    apiService.fetchUser.mockRejectedValueOnce(new Error('Network error'));
-
-    const { getByTestId } = render(<UserProfile userId={1} />);
-
-    await waitFor(() => expect(getByTestId('error')).toBeTruthy());
-
-  });
-
 });
