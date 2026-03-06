@@ -1,97 +1,334 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# React Native API Unit Testing Demo
 
-# Getting Started
+![React Native](https://img.shields.io/badge/React%20Native-0.84-blue)
+![Jest](https://img.shields.io/badge/Jest-Testing-red)
+![Testing Library](https://img.shields.io/badge/Testing%20Library-React%20Native-green)
+![License](https://img.shields.io/badge/license-MIT-lightgrey)
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+A demo project that demonstrates **Unit Testing for API calls in React Native using Jest and React Native Testing Library**.
 
-## Step 1: Start Metro
+This project shows how to:
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+* Test React Native components
+* Mock API calls
+* Test loading state
+* Test successful API responses
+* Test API failures
+* Write maintainable unit tests
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+---
 
-```sh
-# Using npm
-npm start
+# Project Overview
 
-# OR using Yarn
-yarn start
+Modern React Native applications frequently interact with APIs.
+To ensure reliability, **API-related components should be unit tested**.
+
+This demo demonstrates a **User Profile screen** that fetches user data from an API and renders it.
+
+The component handles three states:
+
+1. Loading
+2. Success
+3. Error
+
+Each state is tested using **Jest**.
+
+---
+
+# Project Structure
+
+```
+RNApiTestDemo
+│
+├── apiService.js        # API service
+├── UserProfile.js       # React Native component
+├── UserProfile.test.js  # Jest unit tests
+├── package.json
+└── README.md
 ```
 
-## Step 2: Build and run your app
+---
 
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+# Technologies Used
 
-### Android
+| Technology                   | Purpose                            |
+| ---------------------------- | ---------------------------------- |
+| React Native                 | Mobile UI framework                |
+| Jest                         | Testing framework                  |
+| React Native Testing Library | Component testing utilities        |
+| react-test-renderer          | React component renderer for tests |
 
-```sh
-# Using npm
-npm run android
+---
 
-# OR using Yarn
-yarn android
+# Installation
+
+Clone the repository:
+
+```
+git clone https://github.com/yourusername/RNApiTestDemo.git
 ```
 
-### iOS
+Navigate into the project:
 
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
-
-```sh
-bundle install
+```
+cd RNApiTestDemo
 ```
 
-Then, and every time you update your native dependencies, run:
+Install dependencies:
 
-```sh
-bundle exec pod install
+```
+npm install
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+---
 
-```sh
-# Using npm
-npm run ios
+# Required Testing Packages
 
-# OR using Yarn
-yarn ios
+Install testing dependencies:
+
+```
+npm install --save-dev jest
+npm install --save-dev @testing-library/react-native
+npm install --save-dev react-test-renderer
 ```
 
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
+If using React Native CLI, Jest may already be configured.
 
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
+---
 
-## Step 3: Modify your app
+# API Service Example
 
-Now that you have successfully run the app, let's make changes!
+The API service fetches user data.
 
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+```
+fetchUser(userId)
+```
 
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+In real applications this would call:
 
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+```
+https://api.example.com/users/{id}
+```
 
-## Congratulations! :tada:
+For testing purposes we **mock the API**.
 
-You've successfully run and modified your React Native App. :partying_face:
+---
 
-### Now what?
+# Mocking API Calls
 
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+Unit tests should **not make real network requests**.
 
-# Troubleshooting
+Instead, we mock the API:
 
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+```
+jest.mock('./apiService')
+```
 
-# Learn More
+Then define the expected response.
 
-To learn more about React Native, take a look at the following resources:
+Example success response:
 
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
+```
+fetchUser.mockResolvedValueOnce(mockUserData)
+```
+
+Example failure response:
+
+```
+fetchUser.mockRejectedValueOnce(new Error("Network error"))
+```
+
+This allows full control of API behavior during tests.
+
+---
+
+# Unit Tests Implemented
+
+The project contains three unit tests.
+
+## 1 Loading State Test
+
+Verifies the component shows a loading indicator when the API request begins.
+
+Test checks:
+
+* Loading element exists
+* API request has started
+
+---
+
+## 2 Successful API Response
+
+Verifies the component correctly renders user data when the API call succeeds.
+
+Test checks:
+
+* User name renders
+* User email renders
+
+---
+
+## 3 API Error Handling
+
+Verifies the component handles API failures correctly.
+
+Test checks:
+
+* Error message renders
+* Component does not crash
+
+---
+
+# Running Tests
+
+Run all tests:
+
+```
+npm test
+```
+
+or
+
+```
+npx jest
+```
+
+---
+
+# Run Tests in Watch Mode
+
+Useful during development.
+
+```
+npm test -- --watch
+```
+
+Jest will automatically rerun tests when files change.
+
+---
+
+# Example Test Output
+
+```
+PASS UserProfile.test.js
+  UserProfile Component
+   ✓ renders loading initially
+   ✓ renders user data after API call
+   ✓ renders error message if API fails
+
+Test Suites: 1 passed
+Tests:       3 passed
+```
+
+---
+
+# Code Coverage
+
+Run tests with coverage:
+
+```
+npm test -- --coverage
+```
+
+Example output:
+
+```
+File            % Stmts   % Branch   % Funcs   % Lines
+UserProfile.js      100        100       100       100
+apiService.js       100        100       100       100
+```
+
+Coverage reports are generated in:
+
+```
+/coverage
+```
+
+---
+
+# Best Practices for React Native Unit Testing
+
+✔ Mock external services
+✔ Test behavior instead of implementation
+✔ Write small focused tests
+✔ Test user-visible output
+✔ Avoid real network calls
+
+---
+
+# Testing Strategy
+
+The testing strategy used in this project follows a layered approach.
+
+| Layer       | Tested                     |
+| ----------- | -------------------------- |
+| Component   | UI rendering               |
+| Service     | API abstraction            |
+| Integration | Component + mocked service |
+
+---
+
+# Continuous Integration (Optional)
+
+Tests can be integrated with CI tools such as:
+
+* GitHub Actions
+* Jenkins
+* GitLab CI
+* Bitbucket Pipelines
+
+Example CI step:
+
+```
+npm install
+npm test
+```
+
+---
+
+# Why Unit Testing Matters
+
+Unit testing helps:
+
+* Detect bugs early
+* Improve code reliability
+* Enable safer refactoring
+* Improve developer confidence
+* Document expected behavior
+
+---
+
+# Future Improvements
+
+Possible extensions for this project:
+
+* Snapshot testing
+* Integration testing
+* Redux store testing
+* React Query testing
+* API caching tests
+
+---
+
+# License
+
+MIT License
+
+---
+
+# Author
+
+Pallavi Katari
+
+---
+
+# Summary
+
+This project demonstrates how to:
+
+* Perform **Unit Testing in React Native**
+* Mock **API calls with Jest**
+* Test **loading, success, and error states**
+* Use **React Native Testing Library effectively**
+
+This structure reflects **real-world testing patterns used in production React Native applications**.
